@@ -127,15 +127,12 @@ tracker: botsort.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yam
 save_dir:  #/kaggle/working/runs/train #todo 在kaggle上训练要加
 
 
-
+# Knowledge Distillation
 alpha: 1 # the weight for distillation loss function
-
-#Other Knowledge Distillation
 qk_dim: 128
-det_weight: 1
 adam: False
 linear_lr: False
-model_pt_path:
+model_pt_path: None
 t_shapes: None
 s_shapes: None
 unique_t_shapes:
@@ -143,9 +140,7 @@ guide_layers:
 drop_last:
 hint_layers:
 n_t:
-
-# Knowledge Distillation (Ours)
 Mode: None # [KD / Training]
 KD_Method: None # ['AFD' / 'ReviewKD' / 'OST' / 'CrossKD' / 'FGD‘ ]
 teacher: None
-T: 1
+

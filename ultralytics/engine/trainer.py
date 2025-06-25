@@ -346,6 +346,9 @@ class BaseTrainer:
             self.teacher = attempt_load_weights(self.args.teacher).to(self.device)
             self.trained_teacher = attempt_load(self.args.model_pt_path).float()
         if self.args.KD_Method == 'AFD' or self.args.KD_Method == 'OST' or self.args.KD_Method == 'FGD':
+            # This part of code refers to https://github.com/icey-zhang/GHOST
+            # Currently it works on Object Detection task
+            # And you can replace "LAYER[self.trained_teacher.yaml_file.split('.')[0]]" with the layers you want to distill
             self.args.drop_last = True
             self.args.guide_layers = LAYER[self.trained_teacher.yaml_file.split('.')[0]]
             self.args.hint_layers = LAYER[self.trained_teacher.yaml_file.split('.')[0]]
