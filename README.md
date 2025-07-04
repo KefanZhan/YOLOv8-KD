@@ -9,6 +9,12 @@ Currently supported KD methods are as blew:
 - One-to-one Self-teaching [(OST, TGRS-2023)](https://ieeexplore.ieee.org/abstract/document/10175627)
 - Cross-Head Knowledge Distillation for Dense Object Detection[(CrossKD, CVPR-2024)](https://openaccess.thecvf.com/content/CVPR2024/papers/Wang_CrossKD_Cross-Head_Knowledge_Distillation_for_Object_Detection_CVPR_2024_paper.pdf)
 
+---
+## Hybrid Quantization
+We also provide implementation of [*Hybrid Quantization*](https://ieeexplore.ieee.org/abstract/document/10175627), <br>
+which can be utilized in combination with KD. <br>
+To fix the quantization bit-width，you can set it in [here](ultralytics/engine/trainer.py).
+
 --- 
 ## Train & Test
 Please refer to [main.py](main.py), <br>
@@ -16,7 +22,8 @@ and we have pre-defined some extra args for KD in [here](ultralytics/cfg/default
 
 ---
 ## Time
-2025.6.22 open the code
+2025.6.22 open the code <br>
+2025.7.4  update Hybrid Quantization
 
 ---
 ## Reference

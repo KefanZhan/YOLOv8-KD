@@ -63,6 +63,9 @@ from ultralytics.utils.torch_utils import (
     torch_distributed_zero_first,
 )
 
+from OtherKD.GHOST.GHOST_models.quantization import quantize_model_relu_automix as quantize_model
+from OtherKD.GHOST.utils.plots import k_means_cpu
+
 
 class BaseTrainer:
     """
@@ -243,6 +246,38 @@ class BaseTrainer:
         ckpt = self.setup_model()
         self.model = self.model.to(self.device)
         self.set_model_attributes()
+
+        # todo  混合量化,如果是接着上次继续训练的话就把量化的过程注释掉
+        if self.args.quant == True:
+            bit_width = []
+            conv_idx = 0
+            for idx, (name, m) in enumerate(self.model.named_modules()):
+                # print(idx,name)
+                if isinstance(m, nn.Conv2d):
+                    print(conv_idx, name)
+                    w = m.weight.data
+                    print(w.shape)
+                    print("weight max:", w.max(), "weight min:", w.min())
+                    for n_bit in [2, 3, 4, 5, 6, 7,
+                                  8]:  # 如果要改量化范围，default文件里最大量化位数要改，GHOST/GHOST_models/quant_modules_dorefa.py 里两个assert范围要改，下面的也要改
+                        inertia_distance = k_means_cpu(w.cpu().numpy(), 2 ** n_bit, plot_flag=False)
+                        if inertia_distance < self.args.inter_threshold:
+                            if n_bit < self.args.bit_width_min:
+                                bit_width.append(self.args.bit_width_min)
+                                # bit_width.append(8) # todo 将量化位数全变为8
+                            elif n_bit > self.args.bit_width_max:
+                                bit_width.append(self.args.bit_width_max)
+                                # bit_width.append(8)
+                            else:
+                                bit_width.append(n_bit)
+                                # bit_width.append(8)
+                            break
+                        elif n_bit == 8:
+                            bit_width.append(n_bit)
+                    conv_idx += 1
+            self.args.weight_bit = bit_width
+            print("the bit width is defined as", self.args.weight_bit)
+            self.model, flag, ac_flag = quantize_model(self.model, self.args, self.args.flag, self.args.flag)
 
         # Freeze layers
         freeze_list = (

@@ -127,6 +127,15 @@ tracker: botsort.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yam
 save_dir:  #/kaggle/working/runs/train #todo 在kaggle上训练要加
 
 
+# Hybrid Quantization
+quant: False
+bit_width_min: 2
+bit_width_max: 8
+inter_threshold: 0.1
+flag: 0
+firstlayer_quan: True
+weight_bit:
+
 # Knowledge Distillation
 alpha: 1 # the weight for distillation loss function
 qk_dim: 128
