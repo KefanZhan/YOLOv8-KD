@@ -1,6 +1,9 @@
 from ultralytics import YOLO
 
+# define model
 model=YOLO('yolov8s.yaml')
+
+# model train
 model.train(
     data='data.yaml',
     epochs=150,
@@ -20,12 +23,5 @@ model.train(
     alpha=0.01, # weight for distillation loss
 )
 
-# model.val(data="data.yaml", imgsz=512, batch=8, iou=0.6, split='val',device='mps')
-
-#   不同KD方法的最优参数
-#    KD       |      alpha
-#   AFD       |       100
-# ReviewKD    |       30
-#   OST       |       100
-# CrossKD     |       200
-#   FGD       |       0.01
+# model validation
+model.val(data="data.yaml", imgsz=512, batch=8, iou=0.6, split='val',device='mps')

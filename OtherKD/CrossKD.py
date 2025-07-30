@@ -8,12 +8,12 @@ from ultralytics.utils.tal import make_anchors, dist2bbox
 # ==============================蒸馏损失===============================
 class CrossKD(nn.Module):
     """Distilling the Knowledge in a Neural Network"""
-    def __init__(self, model):
+    def __init__(self, model, teacher_model):
         super(CrossKD, self).__init__()
         device = next(model.parameters()).device  # get model device
         h = model.args  # hyperparameters
 
-        m = model.model[-1]  # Detect() module
+        m = teacher_model.model[-1]  # Detect() module
         self.bce = nn.BCEWithLogitsLoss(reduction="none")
         self.hyp = h
         self.stride = m.stride  # model strides

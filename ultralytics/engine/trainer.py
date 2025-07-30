@@ -418,7 +418,7 @@ class BaseTrainer:
         elif self.args.KD_Method == 'ReviewKD':
             self.kd_criterion = ReviewKD(self.in_channels, self.out_channels, self.shapes, self.out_shapes,self.device).to(self.device)
         elif self.args.KD_Method == 'CrossKD':
-            self.kd_criterion = CrossKD(self.model).to(self.device)
+            self.kd_criterion = CrossKD(self.model, self.teacher).to(self.device)
         elif self.args.KD_Method == 'FGD':
             self.kd_criterion = FeatureLoss(student_channels=self.args.s_shapes, teacher_channels=self.args.t_shapes, device=self.device).to(self.device)
 
