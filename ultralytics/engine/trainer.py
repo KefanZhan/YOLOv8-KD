@@ -23,6 +23,7 @@ import torch
 from torch import distributed as dist
 from torch import nn, optim
 
+from OtherKD.CSAKD import CSAKD
 from OtherKD.CrossKD import CrossKD
 from OtherKD.GHOST.general import LAYER
 
@@ -367,7 +368,7 @@ class BaseTrainer:
 
         #Knowledge Distillation
         if self.args.Mode == 'KD':
-            if self.args.KD_Method not in ['AFD', 'ReviewKD' , 'OST' , 'CrossKD' , 'FGD']:
+            if self.args.KD_Method not in ['AFD', 'ReviewKD', 'OST', 'CrossKD', 'FGD', 'CSAKD']:
                 raise ValueError(f"Invalid KD Method: {self.args.KD_Method}. Allowed values are 'AFD', 'ReviewKD', 'OST', 'CrossKD', 'FGD' .")
             from colorama import Fore, Back, Style
             print(Fore.RED + "-------------------------------------")
@@ -380,7 +381,7 @@ class BaseTrainer:
             print(Style.RESET_ALL)
             self.teacher = attempt_load_weights(self.args.teacher).to(self.device)
             self.trained_teacher = attempt_load(self.args.model_pt_path).float()
-        if self.args.KD_Method == 'AFD' or self.args.KD_Method == 'OST' or self.args.KD_Method == 'FGD':
+        if self.args.KD_Method == 'AFD' or self.args.KD_Method == 'OST' or self.args.KD_Method == 'FGD' or self.args.KD_Method == 'CSAKD':
             # This part of code refers to https://github.com/icey-zhang/GHOST
             # Currently it works on Object Detection task
             # And you can replace "LAYER[self.trained_teacher.yaml_file.split('.')[0]]" with the layers you want to distill
@@ -421,6 +422,8 @@ class BaseTrainer:
             self.kd_criterion = CrossKD(self.model, self.teacher).to(self.device)
         elif self.args.KD_Method == 'FGD':
             self.kd_criterion = FeatureLoss(student_channels=self.args.s_shapes, teacher_channels=self.args.t_shapes, device=self.device).to(self.device)
+        elif self.args.KD_Method == 'CSAKD':
+            self.kd_criterion = CSAKD(self.args).to(self.device)
 
     def _do_train(self, world_size=1):
         """Train completed, evaluate and plot if specified by arguments."""
@@ -517,6 +520,16 @@ class BaseTrainer:
                             student_features = features[10:22]
                             self.fgd_loss = self.args.alpha * self.kd_criterion(preds_S=student_features, preds_T=teacher_features, gt_bboxes=batch['bboxes'], img_metas=batch)
                             self.loss += self.fgd_loss
+
+                        elif self.args.KD_Method == 'CSAKD':
+                            _, pred_teacher, teacher_features = self.teacher(img, img, 'RGB', GHOST=True)
+                            pred, features = self.model(img, GHOST=True)
+                            cross_features = self.teacher(features, Cross=True)
+
+                            dis_loss_1, dis_loss_2 = self.kd_criterion(features, teacher_features, cross_features=cross_features)
+                            dis_loss_1 *= self.args.alpha
+                            dis_loss_2 *= 10
+                            self.loss += dis_loss_1 + dis_loss_2
 
 
                     if RANK != -1:
