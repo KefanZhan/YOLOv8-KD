@@ -37,8 +37,8 @@ and we have pre-defined some extra args for KD in [here](ultralytics/cfg/default
 
 ---
 ## Acknowledgements
-This code is built on [YOLOv8 (PyTorch)](https://github.com/ultralytics/ultralytics). We thank the authors for sharing the codes.
-Shout out to my advisor Hu and my teammates — I couldn’t have pulled this off without you all.
+This code is built on [YOLOv8 (PyTorch)](https://github.com/ultralytics/ultralytics). We thank the authors for sharing the codes.<br>
+Shout out to my advisor Hu and my teammates — I couldn’t have pulled this off without you all.<br>
 May we all glow and thrive in our respective careers ahead.
 
 ---
